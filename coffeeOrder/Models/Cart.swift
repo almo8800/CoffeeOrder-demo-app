@@ -12,6 +12,21 @@ protocol cartButtonAppearedDelegate {
     
 }
 
+protocol CartObserver {
+    func finalPriceChanged(_ price: Int)
+}
+
+class CartNotificationCenter {
+    
+    var observers: [CartObserver] = []
+    
+    func postFinalPriceChanged(_ price: Int) {
+        for observer in observers {
+            observer.finalPriceChanged(price)
+        }
+    }
+}
+
 class Cart {
     
     static let shared = Cart()
@@ -67,7 +82,7 @@ class Cart {
         }
         returnFinalPrice()
         print(finalPrice)
-        NotificationCenter.default.post(name: Notification.Name("NeedCartButton"), object: nil)
+        NotificationCenter.default.post(name: .needCartButton, object: nil)
         
     }
     
@@ -87,7 +102,7 @@ class Cart {
     func returnFinalPrice() -> Int {
         var newSumm = 0
         for cartDrink in drinksInCart {
-            let summOfDrink = cartDrink.count * Int(cartDrink.drink.price)!
+            let summOfDrink = cartDrink.count * (Int(cartDrink.drink.price) ?? 0)
             newSumm += summOfDrink
             finalPrice = newSumm
         }

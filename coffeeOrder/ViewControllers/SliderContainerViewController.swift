@@ -7,14 +7,13 @@
 
 import UIKit
 
-protocol ContainerViewControllerProtocol: AnyObject {
+protocol SliderContainerViewControllerProtocol: AnyObject {
     func toggleMenu()
     func configureMenuViewController()
 }
 
-class ContainerViewController: UIViewController, ContainerViewControllerProtocol {
+class SliderContainerViewController: UIViewController, SliderContainerViewControllerProtocol {
     
-    //var controller: TabBarViewController!
     var controller: UINavigationController!
     var menuVC: UIViewController!
     var menuIsMove = false
@@ -29,7 +28,7 @@ class ContainerViewController: UIViewController, ContainerViewControllerProtocol
         
         let mainVC = MainViewController()
         let navVCmain = UINavigationController(rootViewController: mainVC)
-        mainVC.menuToggleDelegate = self
+        mainVC.sliderController = self
         controller = navVCmain
         
         view.addSubview(controller.view)
@@ -39,37 +38,34 @@ class ContainerViewController: UIViewController, ContainerViewControllerProtocol
     }
     
     func configureMenuViewController() {
-        if menuVC == nil {
-            menuVC = MenuViewController()
-            view.insertSubview(menuVC.view, at: 0)
-            addChild(menuVC)
-            print("Добавили mainViewController")
-        }
+        guard menuVC == nil else { return }
+        
+        menuVC = MenuViewController()
+        view.insertSubview(menuVC.view, at: 0)
+        addChild(menuVC)
+        print("Добавили mainViewController")
     }
+    
     
     func showMenuViewController(shouldMove: Bool) {
         if shouldMove {
-            UIView.animate(withDuration: 0.5,
-                           delay: 0,
-                           usingSpringWithDamping: 0.8,
-                           initialSpringVelocity: 0,
-                           options: .curveEaseInOut,
-                           animations: {
-                self.controller.view.frame.origin.x = self.controller.view.frame.width - 140
-            }) { (finished) in
-            }
+            animationConfigure(x: self.controller.view.frame.width - 140)
         } else {
+            animationConfigure(x: 0)
+        }
+        func animationConfigure(x: CGFloat) {
             UIView.animate(withDuration: 0.5,
                            delay: 0,
                            usingSpringWithDamping: 0.8,
                            initialSpringVelocity: 0,
                            options: .curveEaseInOut,
                            animations: {
-                self.controller.view.frame.origin.x = 0
+                self.controller.view.frame.origin.x = CGFloat(x)
             }) { (finished) in
             }
         }
     }
+    
     
     func toggleMenu() {
         menuIsMove = !menuIsMove

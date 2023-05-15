@@ -8,21 +8,23 @@
 import Foundation
 import UIKit
 
-class MainViewController: UIViewController {
+final class MainViewController: UIViewController {
     
     var user = User.shared
     
-    var popUpView: PopUpBuyingView! = nil
-    weak var menuToggleDelegate: ContainerViewControllerProtocol?
+    lazy var popUpView: PopUpBuyingView = {
+        let popUpView = PopUpBuyingView()
+        view.addSubview(popUpView)
+        return popUpView
+    }()
+    weak var sliderController: SliderContainerViewControllerProtocol?
     private var mainHeaderLabel = UILabel()
     private var drinkCollectionView = DrinkCollectionView()
-
-    
-    var halfModalPresentationController: HalfModalPresentationController?
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = UIColor(red: 0.75431, green: 0.642834, blue: 0.956512, alpha: 1)
+        // TODO: вынести цвета и тд
+        view.backgroundColor = .screenBackground
         setupViews()
         
         DrinkService.shared.fetchDrinks { [weak self] result in
@@ -35,7 +37,7 @@ class MainViewController: UIViewController {
         }
         
         
-        NotificationCenter.default.addObserver(self, selector: #selector(popupTransition), name: Notification.Name("NeedCartButton"), object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(popupTransition), name: .needCartButton, object: nil)
         
         view.addSubview(drinkCollectionView)
         drinkCollectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor).isActive = true
@@ -44,6 +46,7 @@ class MainViewController: UIViewController {
         drinkCollectionView.heightAnchor.constraint(equalToConstant: 250).isActive = true
     
         
+        // TODO: перезагружать одну ячейку, а не всю collectionView. Можно передать в observer index/id и по нему определить ячейку для перезагрузки
         let observer: () -> Void = { [weak self] in
             self?.drinkCollectionView.reloadData()
         }
@@ -60,18 +63,11 @@ class MainViewController: UIViewController {
     }
     
     @objc func popupTransition() {
-        
-        if popUpView == nil {
-            popUpView = PopUpBuyingView()
-            view.addSubview(popUpView)
-            popUpView.widthAnchor.constraint(equalTo: self.view.widthAnchor).isActive = true
-        } else {
-            print("поп-ап уже создан")
-        }
-
+        popUpView.widthAnchor.constraint(equalTo: self.view.widthAnchor).isActive = true
     }
     
     override func viewWillLayoutSubviews() {
+        super.viewWillLayoutSubviews()
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -88,7 +84,7 @@ class MainViewController: UIViewController {
         navigationController?.navigationBar.backgroundColor = #colorLiteral(red: 1, green: 1, blue: 1, alpha: 1)
         navigationController?.navigationBar.tintColor = .black
         navigationItem.title = User.shared.adressName
-        let gearButton = UIBarButtonItem(image: UIImage(systemName: "gearshape.fill"), style: .done, target: self, action: #selector(didTapGearButton))
+        let gearButton = UIBarButtonItem(image: .settings, style: .done, target: self, action: #selector(didTapGearButton))
         navigationItem.leftBarButtonItem = gearButton
         let cartButton = UIBarButtonItem(image: UIImage(systemName: "cart.fill"), style: .done, target: self, action:
                                             #selector(cartButtonDidTapped))
@@ -97,22 +93,21 @@ class MainViewController: UIViewController {
     }
     
     @objc private func didTapGearButton() {
-       
-        menuToggleDelegate?.configureMenuViewController()
-        menuToggleDelegate?.toggleMenu()
+       // TODO: странно, что 2 функции, может все в одной делать?
+        sliderController?.configureMenuViewController()
+        sliderController?.toggleMenu()
     }
 
     
     private func setupViews() {
         mainHeaderConfigure()
         navigationBarConfigure()
-        
     }
         
     private func mainHeaderConfigure() {
         mainHeaderLabel = UILabel(frame: CGRect(x: 20, y: 200, width: 340, height: 40))
+        
         mainHeaderLabel.font = UIFont.boldSystemFont(ofSize: 36)
-       
         mainHeaderLabel.textColor = #colorLiteral(red: 1, green: 1, blue: 1, alpha: 1)
         mainHeaderLabel.text = "Выбери напиток"
         

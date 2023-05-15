@@ -8,6 +8,10 @@
 import UIKit
 
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
+    
+    static var shared: SceneDelegate? {
+        return UIApplication.shared.connectedScenes.first?.delegate as? SceneDelegate
+    }
 
     var window: UIWindow?
 

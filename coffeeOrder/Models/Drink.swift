@@ -17,6 +17,9 @@ struct Drink: Codable, Equatable {
     let volume: String
     let price: String
 
+    var priceValue: Int? {
+        Int(price)
+    }
 }
 
 

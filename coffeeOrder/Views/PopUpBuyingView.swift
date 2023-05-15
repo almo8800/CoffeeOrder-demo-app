@@ -28,29 +28,30 @@ class PopUpBuyingView: UIView {
     var orderButton = UIButton()
     var yellowLayerView = UIView()
     var finalPriceLabel = UILabel()
+    var infoOrderLabel: UILabel!
     
     private var heightConstraint = NSLayoutConstraint()
     private var topConstant = NSLayoutConstraint()
     private var isBottomSheetUnwrap = false
-    private var currentState: State = .closed
+    private var currentState: State = .open
     
     override init(frame: CGRect) {
         super.init(frame: frame)
         
-        layout()
+        infoOrderLabel = UILabel()
+        infoOrderLabel.isHidden = true
+        
+        popUpLayout()
         
         let tapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(orderButtonDidTapped(_:)))
         
         let gestureRecognizer = UISwipeGestureRecognizer(target: self, action: #selector(gestureFired(_:)))
-        gestureRecognizer.direction = .up
+        gestureRecognizer.direction = .down
         gestureRecognizer.numberOfTouchesRequired = 1
         addGestureRecognizer(gestureRecognizer)
         isUserInteractionEnabled = true
         
         NotificationCenter.default.addObserver(self, selector: #selector(finalPriceLabelUpdate(_:)), name: .finalPriceHasChanged, object: nil)
-        
-        
-    
         
     }
     
@@ -66,14 +67,10 @@ class PopUpBuyingView: UIView {
         }
     }
     
-    func layout() {
+    func popUpLayout() {
         translatesAutoresizingMaskIntoConstraints = false
         self.backgroundColor = #colorLiteral(red: 1, green: 1, blue: 1, alpha: 1)
         self.roundCorners([.topLeft, .topRight, .bottomLeft, .bottomRight], radius: 10)
-    
-        
-//        heightConstraint = self.heightAnchor.constraint(equalToConstant: 0)
-//        heightConstraint.isActive = true
         
         addSubview(yellowLayerView)
         yellowLayerViewConfigure()
@@ -83,6 +80,13 @@ class PopUpBuyingView: UIView {
         yellowLayerView.addSubview(finalPriceLabel)
         finalPriceLabelConfigure()
         
+        addSubview(infoOrderLabel)
+        infoOrderLabel.text = "Информация о заказе и оплате. \nМожно скрыть жестом."
+        infoOrderLabel.translatesAutoresizingMaskIntoConstraints = false
+        infoOrderLabel.numberOfLines = 2
+        infoOrderLabel.topAnchor.constraint(equalTo: self.topAnchor, constant: 20).isActive = true
+        infoOrderLabel.leftAnchor.constraint(equalTo: self.leftAnchor, constant: 20).isActive = true
+        infoOrderLabel.widthAnchor.constraint(equalTo: self.widthAnchor, constant: -20).isActive = true
     }
     
     func yellowLayerViewConfigure() {
@@ -92,7 +96,7 @@ class PopUpBuyingView: UIView {
         yellowLayerView.leftAnchor.constraint(equalTo: leftAnchor, constant: 5).isActive = true
         yellowLayerView.rightAnchor.constraint(equalTo: rightAnchor, constant: -5).isActive = true
         yellowLayerView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -20).isActive = true
-        //yellowLayerView.topAnchor.constraint(equalTo: topAnchor, constant: 10).isActive = true
+
         yellowLayerView.heightAnchor.constraint(equalToConstant: 58).isActive = true
        
         yellowLayerView.layer.cornerRadius = 10
@@ -133,6 +137,7 @@ class PopUpBuyingView: UIView {
         }
     }
     
+    
     @objc func orderButtonDidTapped(_ tap: UITapGestureRecognizer) {
         print("нажата кнопка")
         
@@ -140,8 +145,42 @@ class PopUpBuyingView: UIView {
         switch state {
         case .open:
             self.topConstant.constant = -90
+            self.infoOrderLabel.isHidden = true
         case .closed:
             self.topConstant.constant = -300
+            self.infoOrderLabel.isHidden = false
+            
+        }
+        
+        let transitionAnimator = UIViewPropertyAnimator(duration: 1, dampingRatio: 1) {
+            self.superview?.layoutIfNeeded()
+        }
+        
+        transitionAnimator.addCompletion { position in
+            switch position {
+            case .start:
+                self.currentState = state.opposite
+            case .end:
+                self.currentState = state
+            case .current:
+                ()
+            }
+            
+        }
+        
+        transitionAnimator.startAnimation()
+    }
+    
+    @objc func gestureFired(_ gesture: UISwipeGestureRecognizer) {
+        print("сработал жест")
+        let state = currentState.opposite
+        switch state {
+        case .open:
+            self.topConstant.constant = -90
+            self.infoOrderLabel.isHidden = true
+        case .closed:
+            self.topConstant.constant = -300
+            self.infoOrderLabel.isHidden = false
         }
         let transitionAnimator = UIViewPropertyAnimator(duration: 1, dampingRatio: 1) {
             self.superview?.layoutIfNeeded()
@@ -156,21 +195,10 @@ class PopUpBuyingView: UIView {
             case .current:
                 ()
             }
-            //            switch self.currentState {
-            //            case .open:
-            //                self.topConstant.constant = -90
-            //            case .closed:
-            //                self.topConstant.constant = -300
-            //            }
+            
         }
+        
         transitionAnimator.startAnimation()
-    }
-    
-    @objc func gestureFired(_ gesture: UISwipeGestureRecognizer) {
-        print("функция жеста или кнопки")
-        
-        
-    
     }
     
     required init?(coder: NSCoder) {

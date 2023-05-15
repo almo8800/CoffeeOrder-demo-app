@@ -8,6 +8,16 @@
 import Foundation
 import UIKit
 
+extension NSNotification.Name {
+    static let finalPriceHasChanged = NSNotification.Name("FinalPriceHasChanged")
+}
+
+extension Notification.Name {
+    
+    static let needCartButton = Notification.Name("NeedCartButton")
+}
+
+
 // сейчас не используется
 extension UIImageView {
     func loadImage(url: URL) {
@@ -23,6 +33,3 @@ extension UIImageView {
     }
 }
 
-extension NSNotification.Name {
-    static let finalPriceHasChanged = NSNotification.Name("FinalPriceHasChanged")
-}

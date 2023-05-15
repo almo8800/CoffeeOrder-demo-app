@@ -10,26 +10,27 @@ import UIKit
 
 enum MenuModel: Int, CustomStringConvertible {
     
-     case Profile
-     case ChooseAdress
-     case History
-     case Settings
+    // TODO: case с маленькой буквы
+     case profile
+     case chooseAdress
+     case history
+     case settings
     
     var description: String {
         switch self {
-        case .Profile: return "Профиль"
-        case .ChooseAdress: return "Выбрать кофейню"
-        case .History: return "Контакты"
-        case .Settings: return "Настройки"
+        case .profile: return "Профиль"
+        case .chooseAdress: return "Выбрать кофейню"
+        case .history: return "Контакты"
+        case .settings: return "Настройки"
         }
     }
     
     var image: UIImage {
         switch self {
-        case .Profile: return UIImage(systemName: "person.circle.fill") ?? UIImage()
-        case .ChooseAdress: return UIImage(systemName: "location.circle.fill") ?? UIImage()
-        case .History: return UIImage(systemName: "book.circle.fill") ?? UIImage()
-        case .Settings: return UIImage(systemName: "gearshape.fill") ?? UIImage()
+        case .profile: return UIImage(systemName: "person.circle.fill") ?? UIImage()
+        case .chooseAdress: return UIImage(systemName: "location.circle.fill") ?? UIImage()
+        case .history: return UIImage(systemName: "book.circle.fill") ?? UIImage()
+        case .settings: return UIImage(systemName: "gearshape.fill") ?? UIImage()
     }
     
     }

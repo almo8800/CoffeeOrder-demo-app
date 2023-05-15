@@ -13,12 +13,16 @@ class DrinkService {
     
     static var shared = DrinkService()
     
-    init() {}
+    let network: NetworkManager
+    
+    init(network: NetworkManager = .shared) {
+        self.network = network
+    }
     
     var drinks: [Drink] = []
     
     func fetchDrinks(completion: @escaping(Result<[Drink], NetworkError>) -> Void) {
-        NetworkManager.shared.fetch([Drink].self, from: Link.drinksURL.rawValue) { [weak self] result in
+        network.fetch([Drink].self, from: Link.drinksURL.rawValue) { [weak self] result in
             switch result {
             case .success(let drinks):
                 self?.drinks = drinks
@@ -31,3 +35,4 @@ class DrinkService {
         }
     }
 }
+
